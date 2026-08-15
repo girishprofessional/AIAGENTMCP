@@ -22,7 +22,7 @@ test.beforeAll('Before All Tests', async ({request})=>{
     console.log('Token from beforeAll: ', token);
 })
 
-test.only('Web and API Tests Create Order', async ({ page, request}) => {
+test('Web and API Tests Create Order', async ({ page, request}) => {
     await page.addInitScript(value => {
         window.localStorage.setItem('token', value);
     },token);
