@@ -18,8 +18,7 @@ test.describe('Login and Checkout Flow', () => {
     // Click sign in button
     await page.locator('#signInBtn').click();
     
-    // Wait for either the dashboard or products to load
-    // The page may navigate or stay on the same URL but load content
+    // Wait for products to load
     await page.waitForSelector('.card-title', { timeout: 20000 });
     
     // Wait a moment for the page to fully render
@@ -49,38 +48,64 @@ test.describe('Login and Checkout Flow', () => {
     
     expect(iphoneXFound).toBeTruthy();
     
-    // Wait for cart to update
+    // Click on the Checkout button (cart icon or checkout button)
+    // First, navigate to cart page
+    await page.locator('a.nav-link.btn.btn-primary').click();
+    await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1000);
     
-    // Click on the checkout button (cart icon or checkout link)
-    await page.locator('a.nav-link.btn.btn-primary').click();
+    // Click the "Checkout" button on the cart page
+    const checkoutButton = page.locator('button.btn-success:has-text("Checkout")');
+    await checkoutButton.click();
+    console.log('Clicked Checkout button');
     
+    // Wait for checkout form to load
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(1000);
     
-    // Verify iPhone X is in the cart
-    const cartItems = await page.locator('h4');
-    let productFound = false;
-    
-    for (let i = 0; i < await cartItems.count(); i++) {
-      const text = await cartItems.nth(i).textContent();
-      const cleanText = text?.trim().toLowerCase() || '';
-      if (cleanText.includes('iphone x')) {
-        productFound = true;
-        console.log('iPhone X found in cart');
-        break;
-      }
-    }
-    
-    expect(productFound).toBeTruthy();
-    
-    // Click Checkout button
-    await page.locator('button.btn-success').click();
-    
-    // Wait for checkout completion
-    await page.waitForTimeout(2000);
-    
-    // Check for success message
-    const bodyText = await page.locator('strong:has-text("Success!")').textContent();
-    console.log('Page text after checkout:', bodyText);
-    expect(bodyText).toBe('Success!');
+    // Select delivery location - look for the select dropdown or other location selector
+    await page.locator('#country').pressSequentially('Ind');
+    await page.locator('.suggestions a').first().highlight();
+    await page.locator('.suggestions a').first().click();
+    await page.locator('#checkbox2').waitFor({ state: 'visible' })
+    await page.locator("label[for='checkbox2']").check();
+
+    // Verify Success message after placing the order
+
+    await page.locator("//input[@value='Purchase']").click();
+    await page.waitForSelector('.alert-success');
+    const successMessage = await page.locator('.alert-success').textContent();
+    console.log(`Success message: ${successMessage}`);
+    expect(successMessage).toContain('Success');
+
   });
 });
+
+test('Special Playwright Locators', async({page})=>{
+    test.setTimeout(60000);
+    await page.goto('https://www.rahulshettyacademy.com/angularpractice');
+    await page.getByPlaceholder('Password').waitFor({state:'visible'});
+    await page.getByPlaceholder('Password').fill('Learning@830$3mK2');
+    await expect(page.getByPlaceholder('Password')).toHaveValue('Learning@830$3mK2');
+    await page.getByLabel('Check me out if you Love IceCreams!').check();
+    await expect(page.getByLabel('Check me out if you Love IceCreams!')).toBeChecked();
+    await page.locator('#exampleFormControlSelect1').selectOption('Female');
+    await expect(page.locator('#exampleFormControlSelect1')).toHaveValue('Female');
+    await page.getByLabel('Student').check();
+    await expect(page.getByLabel('Student')).toBeChecked();
+    await page.locator('input[name="bday"]').fill('2024-06-10');
+    await page.getAttribute('input[name="bday"]','value').then((value)=>{
+        console.log(value);
+    })
+    await page.getByRole('button',{name:'Submit'}).click();
+    await page.locator('.alert-success').waitFor({state:'visible'});
+    await expect(page.locator('.alert-success')).toContainText('Success'); 
+    await page.getByRole('link',({name:'Shop'})).click();
+    await page.locator('app-card').filter({hasText:'Samsung Note 8'}).getByRole('button',{name:'Add '}).click();
+    await page.locator(".nav-link.btn.btn-primary").waitFor();
+    await page.locator(".nav-link.btn.btn-primary").textContent().then((value)=>{
+        console.log(value);
+    })  
+    await page.pause();
+ 
+})
