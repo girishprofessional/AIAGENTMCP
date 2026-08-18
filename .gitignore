@@ -33,3 +33,9 @@ Thumbs.db
 *.swp
 *.swo
 *.iml
+
+# Playwright
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

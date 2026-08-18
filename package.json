@@ -10,11 +10,15 @@
     "test:ui": "playwright test --ui",
     "codegen": "playwright codegen"
   },
-  "keywords": ["playwright", "test", "automation"],
+  "keywords": [
+    "playwright",
+    "test",
+    "automation"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.45.0",
+    "@playwright/test": "^1.62.1",
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
   }
